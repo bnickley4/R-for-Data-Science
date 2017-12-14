@@ -53,20 +53,218 @@ ggplot(data = mpg) +
 
 3. Map a continuous variable to color, size, and shape. How do these aesthetics behave differently for categorical vs. continuous variables?
 
-```{r Mapping continuous variables in aes}
+```{r Mapping continuous variables in aes, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
 ggplot(data = mpg) +
-  geom_point(mapping = aes(x=cyl, y=displ, color=hwy), stroke=2)
+  geom_point(mapping = aes(x=cyl, y=displ, size=hwy), stroke=1, shape=1, color='steelblue')
 
 # What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)?
 ggplot(data = mpg) +
   geom_point(mapping = aes(x=cyl, y=hwy, colour = displ < 5), stroke=2)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=cyl, y=hwy, colour = fl), stroke=2, shape=20)
 ```
 
+'Facets' (many sided, like 'the many facets of a gem') can be used to add variables to the plot. Very useful for categorical data, as the data is subset by a categorical variable and subplots are created for each category of that variable.
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=displ, y=hwy)) +
+  facet_wrap(~ class, nrow = 2)
+```
+Can also use 'facet_grid to subset by the combination of 2 variables
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = 'slateblue') + 
+  facet_grid(drv ~ cyl)
 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = 'slateblue') + 
+  facet_wrap(drv ~ cyl)
+```
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = 'forestgreen') + 
+  facet_grid(. ~ class)
+```
 
+# EX: 3.5.1
+Here's what happens when you facet by a continuous variable
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=displ, y=hwy), color = 'orchid') +
+  facet_grid(.~cty)
+```
+Below, the period is used to specify NOT to facet in the columns section.
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
 
+Below, the period is used to specify NOT to facet in the rows section.
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
 
+Comparison of faceting and using aes mapping to include additional variables.
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+Plots with multiple geoms
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = drv)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv, color = drv))
+```
 
+Other plots
+```{r}
+ggplot(data = mpg, mapping = aes(x = hwy)) + 
+  geom_histogram(mapping = aes(color = drv, fill = drv), alpha = 0.5)
 
+ggplot(data = mpg, mapping = aes(y = hwy, x = drv)) + 
+  geom_boxplot(color = 'lightseagreen', fill = 'limegreen', width = 0.5)
+
+ggplot(data = mpg, mapping = aes(y = hwy, x = as.character(cyl))) + 
+  geom_boxplot(color = 'red1', fill = 'khaki1', width = 0.5)
+```
+
+These graphs are the same
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+# 3.6.1 EX
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = F)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = F, mapping = aes(group = drv))
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = F)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(se = F)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(mapping = aes(linetype = drv), se = F)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, fill = drv)) + 
+  geom_point(shape = 21, color = 'white')
+```
+
+# Diamonds Dataset
+Data transformations - stat created (count) to make the graph below.  This is automatically done by geom_bar
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut), fill = "limegreen", width = 0.75)
+
+ggplot(data = diamonds) + 
+  stat_bin(mapping = aes(x = price))
+
+ggplot(data = diamonds) + 
+  geom_boxplot(mapping = aes(x=color, y = carat))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., fill = color, group = color))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..))
+```
+# 3.8
+Defining position changes the location of the geoms in the plot. For bar charts, changing position to 'identity' keeps the location of each bar where it would normally be plotted. If position 'fill' is specified, you get a nice comparision of proportions across categories. RColorBrewer has nice color palettes.
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity") +
+    scale_fill_brewer("Colors in Dark2", palette="Dark2")
+
+ggplot(data = diamonds, aes(cut)) + 
+  geom_bar(aes(fill = clarity), position = "fill") +
+  scale_fill_brewer("Colors in Accent", palette="Accent")
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge") +
+    scale_fill_brewer("Colors in Accent", palette="Accent")
+```
+
+```{r}
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+d <- ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(colour = clarity)) +
+  scale_color_brewer(palette = 'Greens')
+d
+```
+Position 'jitter' adds some random noise to points to spread them out so overlapping points are much less common
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = drv), position = "jitter") +
+  scale_color_brewer(palette = 'Accent') +
+  geom_smooth(aes(x = displ, y = hwy), se = F, color = 'gray', method = 'lm') +
+ stat_smooth(aes(x = displ, y = hwy), method = "lm", colour = "gray", geom = "ribbon", fill = NA, linetype = 2)
+```
+# 3.8.1 EX
+Different types of jittering
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point(position = 'jitter') +
+    geom_smooth(aes(x = cty, y = hwy), method = 'lm', se = F, color = 'springgreen')
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_count() +
+    geom_smooth(aes(x = cty, y = hwy), method = 'lm', se = F, color = 'orchid')
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_jitter() +
+    geom_smooth(aes(x = cty, y = hwy), method = 'lm', se = F, color = 'firebrick1')
+```
+coord_flip is usefull
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy, fill = class)) + 
+  scale_fill_brewer(palette="Accent") +
+  geom_boxplot()
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy, fill = class)) + 
+  geom_boxplot() +
+  scale_fill_brewer(palette="Set2") +
+  coord_flip()
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
 
